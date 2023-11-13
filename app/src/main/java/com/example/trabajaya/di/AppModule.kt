@@ -1,11 +1,14 @@
 package com.example.trabajaya.di
 
+import com.example.trabajaya.data.remote.dto.EmpleoApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
 
 @Module
@@ -17,5 +20,14 @@ object AppModule {
         return Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
     }
 
+    @Singleton
+    @Provides
+    fun providesEmpleoApi(moshi: Moshi): EmpleoApi {
+        return Retrofit.Builder()
+            .baseUrl("http://miempleoapiap.somee.com/")
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(EmpleoApi::class.java)
+    }
 
 }
