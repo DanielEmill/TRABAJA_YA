@@ -1,6 +1,6 @@
 package com.example.trabajaya.data.repository
 
-import com.example.trabajaya.data.remote.dto.EmpleoApi
+import com.example.trabajaya.data.remote.EmpleoApi
 import com.example.trabajaya.data.remote.dto.EmpleoDto
 import com.example.trabajaya.utils.Resource
 import kotlinx.coroutines.flow.Flow

@@ -1,9 +1,11 @@
-package com.example.trabajaya.data.remote.dto
+package com.example.trabajaya.data.remote
 
+import com.example.trabajaya.data.remote.dto.EmpleoDto
 import retrofit2.Response
 import retrofit2.http.*
 
-interface EmpleoApi {
+interface EmpleoApi
+{
     @GET("api/Empleos")
     suspend fun getEmpleos(): List<EmpleoDto>
     @GET("api/Empleos/{id}")
