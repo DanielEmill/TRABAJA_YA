@@ -1,6 +1,6 @@
 package com.example.trabajaya.di
 
-import com.example.trabajaya.data.remote.dto.EmpleoApi
+import com.example.trabajaya.data.remote.EmpleoApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
