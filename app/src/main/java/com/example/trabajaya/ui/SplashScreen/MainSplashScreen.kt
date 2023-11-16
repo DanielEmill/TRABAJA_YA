@@ -47,7 +47,7 @@ fun Splash() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-       com.example.trabajaya.utils.navegation.CustomIcon(resourceId = R.drawable.add_home_work)
+       com.example.trabajaya.utils.navegation.CustomIcon(resourceId = R.drawable.logo)
     }
 }
 
@@ -63,7 +63,7 @@ fun CustomIcon(resourceId: Int) {
         painter = painterResource(id = resourceId),
         contentDescription = null,
         colorFilter = ColorFilter.tint(Color.White),
-        contentScale = ContentScale.Fit, // Ajusta según tus necesidades
+        contentScale = ContentScale.Fit,
         modifier = Modifier
             .size(300.dp, 300.dp)
     )

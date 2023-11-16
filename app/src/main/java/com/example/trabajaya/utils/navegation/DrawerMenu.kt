@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -85,8 +86,13 @@ fun DrawerMenu(
                         .height(200.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CustomIcon(resourceId = R.drawable.painter_icon)
+                    CustomIcon(resourceId = R.drawable.logo)
                 }
+                Divider(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    color = Color.Gray
+                )
                 Spacer(Modifier.height(15.dp))
                 item_1.forEach { item ->
                     NavigationDrawerItem(
@@ -94,107 +100,97 @@ fun DrawerMenu(
                             if (item.icon is Int) {
                                 Icon(painterResource(id = item.icon), contentDescription = null)
                             } else {
-                                // Manejar el caso en el que item.icon no es de tipo Int
-                                // Puedes proporcionar un icono predeterminado o manejarlo según tus necesidades
                                 Icon(Icons.Default.Warning, contentDescription = null)
                             }
                         },
-                        label = { Text(item.title, fontSize = 25.sp) },
+                        label = { Text(item.title, fontSize = 16.sp, color = Color.Black) },
                         selected = item == selectedItem_1.value,
                         onClick = {
                             scope.launch { drawerState.close() }
                             selectedItem_1.value = item
                             navController.navigate(item.route)
                         },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
-                Spacer(modifier = Modifier.padding(20.dp))
+                Spacer(modifier = Modifier.padding(8.dp))
                 item_2.forEach { item ->
                     NavigationDrawerItem(
                         icon = {
                             if (item.icon is Int) {
                                 Icon(painterResource(id = item.icon), contentDescription = null)
                             } else {
-                                // Manejar el caso en el que item.icon no es de tipo Int
-                                // Puedes proporcionar un icono predeterminado o manejarlo según tus necesidades
                                 Icon(Icons.Default.Warning, contentDescription = null)
                             }
                         },
-                        label = { Text(item.title, fontSize = 25.sp) },
+                        label = { Text(item.title, fontSize = 16.sp, color = Color.Black) },
                         selected = item == selectedItem_2.value,
                         onClick = {
                             scope.launch { drawerState.close() }
                             selectedItem_2.value = item
                             navController.navigate(item.route)
                         },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
-                Spacer(modifier = Modifier.padding(20.dp))
+                Spacer(modifier = Modifier.padding(8.dp))
                 item_3.forEach { item ->
                     NavigationDrawerItem(
                         icon = {
                             if (item.icon is Int) {
                                 Icon(painterResource(id = item.icon), contentDescription = null)
                             } else {
-                                // Manejar el caso en el que item.icon no es de tipo Int
-                                // Puedes proporcionar un icono predeterminado o manejarlo según tus necesidades
                                 Icon(Icons.Default.Warning, contentDescription = null)
                             }
                         },
-                        label = { Text(item.title, fontSize = 25.sp) },
+                        label = { Text(item.title, fontSize = 16.sp, color = Color.Black) },
                         selected = item == selectedItem_3.value,
                         onClick = {
                             scope.launch { drawerState.close() }
                             selectedItem_3.value = item
                             navController.navigate(item.route)
                         },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
-                Spacer(modifier = Modifier.padding(20.dp))
+                Spacer(modifier = Modifier.padding(8.dp))
                 item_4.forEach { item ->
                     NavigationDrawerItem(
                         icon = {
                             if (item.icon is Int) {
                                 Icon(painterResource(id = item.icon), contentDescription = null)
                             } else {
-                                // Manejar el caso en el que item.icon no es de tipo Int
-                                // Puedes proporcionar un icono predeterminado o manejarlo según tus necesidades
                                 Icon(Icons.Default.Warning, contentDescription = null)
                             }
                         },
-                        label = { Text(item.title, fontSize = 25.sp) },
+                        label = { Text(item.title, fontSize = 16.sp, color = Color.Black) },
                         selected = item == selectedItem_4.value,
                         onClick = {
                             scope.launch { drawerState.close() }
                             selectedItem_4.value = item
                             navController.navigate(item.route)
                         },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
-                Spacer(modifier = Modifier.padding(200.dp))
+                Spacer(modifier = Modifier.padding(8.dp))
                 item_5.forEach { item ->
                     NavigationDrawerItem(
                         icon = {
                             if (item.icon is Int) {
                                 Icon(painterResource(id = item.icon), contentDescription = null)
                             } else {
-                                // Manejar el caso en el que item.icon no es de tipo Int
-                                // Puedes proporcionar un icono predeterminado o manejarlo según tus necesidades
                                 Icon(Icons.Default.Warning, contentDescription = null)
                             }
                         },
-                        label = { Text(item.title, fontSize = 25.sp) },
+                        label = { Text(item.title, fontSize = 16.sp, color = Color.Black) },
                         selected = item == selectedItem_5.value,
                         onClick = {
                             scope.launch { drawerState.close() }
                             selectedItem_5.value = item
                             navController.navigate(item.route)
                         },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
             }
@@ -238,6 +234,7 @@ fun DrawerMenu(
         }
     )
 }
+
 
 @Composable
 fun CustomIcon(resourceId: Int) {
