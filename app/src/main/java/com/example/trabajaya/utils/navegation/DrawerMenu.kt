@@ -1,5 +1,7 @@
 package com.example.trabajaya.utils.navegation
-
+import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,44 +14,58 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.trabajaya.R
+import com.example.trabajaya.data.remote.dto.EmpleoDto
+import com.example.trabajaya.ui.viewModel.EmpleoViewModel
 import com.example.trabajaya.utils.directionModule.ScreenDirectionModule
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 // Todo: Direño del menu. Este contiene las direcciones establecidas en el ScreenDirectionModule que serviran como entrada a la pantalla/s deseada/s a ingresar.
 
 // Todo: Nota: Para tener mas control en relacion a la movilidad de las opciones en el contorno del 'ModalNavigationDrawer', se agrego un 'NavigationDrawerItem' y 'items'.
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DrawerMenu(
-    navController: NavController
-) {
+fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = viewModel()) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -222,28 +238,112 @@ fun DrawerMenu(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.Filled.ThumbUp,
-                    contentDescription = null,
-                    tint = Color.Cyan,
-                    modifier = Modifier
-                        .size(180.dp, 180.dp)
-                        .padding(4.dp),
-                )
+                PantallaInicial(empleoViewModel)
             }
         }
     )
 }
-
-
 @Composable
 fun CustomIcon(resourceId: Int) {
     Image(
         painter = painterResource(id = resourceId),
         contentDescription = null,
         colorFilter = null,
-        contentScale = ContentScale.Fit, // Ajusta según tus necesidades
+        contentScale = ContentScale.Fit,
         modifier = Modifier
             .size(300.dp, 300.dp)
     )
+}
+
+
+//pantalla principal
+@SuppressLint("StateFlowValueCalledInComposition")
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun PantallaInicial(empleoViewModel: EmpleoViewModel = viewModel()) {
+    val scope = rememberCoroutineScope()
+    val uiState by empleoViewModel.uiState.collectAsStateWithLifecycle()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+
+        Text(
+            text = "TrabajaYA - Empleos recientes:",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(7.dp)
+                .wrapContentWidth(Alignment.CenterHorizontally)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        EmpleoDetails(empleoList = uiState.empleos)
+
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun EmpleoDetails(empleoList: List<EmpleoDto>) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        items(empleoList) { empleo ->
+            val fechaParseada = LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
+            val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
+
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                shape = RoundedCornerShape(corner = CornerSize(16.dp)),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Id: ${empleo.empleoId}",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.weight(3f)
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = "$fechaFormateada",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("${empleo.nombre}", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        "${empleo.descripcion}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(2.dp),
+                color = Color.Gray
+            )
+        }
+    }
 }

@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
                             MainSplashScreen(navController)
                         }
                         composable(ScreenDirectionModule.PMain.route) {
-                            DrawerMenu(navController)
+                            DrawerMenu(navController, empleoview)
                         }
                         composable(ScreenDirectionModule.P1.route) {
                             P1Screen(navController)
