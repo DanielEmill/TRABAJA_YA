@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,6 +19,7 @@ import com.example.trabajaya.ui.Screens.ConfigScreen
 import com.example.trabajaya.ui.Screens.P1Screen
 import com.example.trabajaya.ui.Screens.P2Screen
 import com.example.trabajaya.ui.Screens.P3Screen
+import com.example.trabajaya.ui.viewModel.EmpleoViewModel
 import com.example.trabajaya.utils.directionModule.ScreenDirectionModule
 import com.example.trabajaya.utils.navegation.DrawerMenu
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,6 +36,8 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
+                    val empleoview: EmpleoViewModel = viewModel()
+
                     NavHost(
                         navController = navController,
                         startDestination = ScreenDirectionModule.Splash.route
