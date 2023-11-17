@@ -32,7 +32,6 @@ fun MainSplashScreen(navController: NavHostController): NavHostController {
         navController.popBackStack()
         navController.navigate(ScreenDirectionModule.PMain.route)
     }
-
     Splash()
     return navController
 }

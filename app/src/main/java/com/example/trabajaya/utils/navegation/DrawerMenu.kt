@@ -314,7 +314,7 @@ fun EmpleoDetails(empleoList: List<EmpleoDto>) {
                         )
                     }
                     Image(
-                        painter = painterResource(id = R.drawable.people),
+                        painter = painterResource(id = R.drawable.click_png_45032),
                         contentDescription = null,
                         modifier = Modifier.size(50.dp)
                     )
