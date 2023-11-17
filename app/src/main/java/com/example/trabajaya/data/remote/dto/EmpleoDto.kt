@@ -7,6 +7,7 @@ data class EmpleoDto(
     var nombre: String ="",
     var descripcion: String ="",
     var categoria: String ="",
+    var provincia: String ="",
     var fechaDePublicacion: String = "",
     var numero: String = "",
     var correo: String = "",
