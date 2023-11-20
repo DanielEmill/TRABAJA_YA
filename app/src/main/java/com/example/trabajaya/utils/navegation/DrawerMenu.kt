@@ -268,7 +268,7 @@ fun PantallaInicial(empleoViewModel: EmpleoViewModel = viewModel()) {
             .fillMaxSize()
     ) {
         Text(
-            text = "TrabajaYA - Empleos recientes:",
+            text = "Empleos recientes:",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
@@ -466,7 +466,7 @@ fun MinimalDialog(
 }
 
 fun onEnviarCVClick(context: Context, correo: String) {
-    val subject = "CV - TRABAJAYA"
+    val subject = "CV - BY TRABAJAYA"
     val intent = Intent(Intent.ACTION_SENDTO).apply {
         data = Uri.parse("mailto:$correo")
         putExtra(Intent.EXTRA_SUBJECT, subject)
@@ -474,10 +474,13 @@ fun onEnviarCVClick(context: Context, correo: String) {
     context.startActivity(intent)
 }
 
+
+
 //Aqui hay un error que debo solucionar
 fun onContactarClick(context: Context, numero: String) {
     val intent = Intent(Intent.ACTION_CALL).apply {
         data = Uri.parse("tel:$numero")
+        putExtra(Intent.EXTRA_SUBJECT, numero)
     }
     context.startActivity(intent)
 }
