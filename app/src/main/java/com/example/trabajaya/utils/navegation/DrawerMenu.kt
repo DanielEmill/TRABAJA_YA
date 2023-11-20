@@ -1,8 +1,10 @@
 package com.example.trabajaya.utils.navegation
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -58,6 +60,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -68,6 +72,7 @@ import com.example.trabajaya.utils.directionModule.ScreenDirectionModule
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import android.Manifest.permission.CALL_PHONE
 
 // Todo: Direño del menu. Este contiene las direcciones establecidas en el ScreenDirectionModule que serviran como entrada a la pantalla/s deseada/s a ingresar.
 
@@ -475,14 +480,24 @@ fun onEnviarCVClick(context: Context, correo: String) {
 }
 
 
-
-//Aqui hay un error que debo solucionar
+private const val MY_PERMISSIONS_REQUEST_CALL_PHONE = 1
 fun onContactarClick(context: Context, numero: String) {
     val intent = Intent(Intent.ACTION_CALL).apply {
         data = Uri.parse("tel:$numero")
-        putExtra(Intent.EXTRA_SUBJECT, numero)
     }
-    context.startActivity(intent)
+    if (ContextCompat.checkSelfPermission(
+            context,
+            CALL_PHONE
+        ) == PackageManager.PERMISSION_GRANTED
+    ) {
+        context.startActivity(intent)
+    } else {
+        ActivityCompat.requestPermissions(
+            context as Activity,
+            arrayOf(CALL_PHONE),
+            MY_PERMISSIONS_REQUEST_CALL_PHONE
+        )
+    }
 }
 
 
