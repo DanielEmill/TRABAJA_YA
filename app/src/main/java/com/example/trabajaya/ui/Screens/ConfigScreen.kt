@@ -55,7 +55,7 @@ fun ConfigScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "TrabajaYA - Pantalla de ajustes",
+            text = "Sobre Nosotros - TRABAJAYA",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier

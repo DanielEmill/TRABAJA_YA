@@ -1,6 +1,9 @@
 package com.example.trabajaya.utils.navegation
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
@@ -18,17 +21,19 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.width
+
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
@@ -44,12 +49,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -244,14 +252,17 @@ fun CustomIcon(resourceId: Int) {
     )
 }
 
-
-//pantalla principal
+// Pantalla principal
 @SuppressLint("StateFlowValueCalledInComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PantallaInicial(empleoViewModel: EmpleoViewModel = viewModel()) {
+    var isModalVisible by remember { mutableStateOf(false) }
+    var selectedEmpleo by remember { mutableStateOf<EmpleoDto?>(null) }
+
     val scope = rememberCoroutineScope()
     val uiState by empleoViewModel.uiState.collectAsStateWithLifecycle()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -266,37 +277,53 @@ fun PantallaInicial(empleoViewModel: EmpleoViewModel = viewModel()) {
                 .wrapContentWidth(Alignment.CenterHorizontally)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        EmpleoDetails(empleoList = uiState.empleos)
+        EmpleoDetails(empleoList = uiState.empleos) {
+            isModalVisible = true
+            selectedEmpleo = it
+        }
 
+        if (isModalVisible) {
+            MinimalDialog(
+                onDismissRequest = {
+                    isModalVisible = false
+                    selectedEmpleo = null
+                },
+                empleo = selectedEmpleo ?: EmpleoDto(),
+                onEnviarCVClick = { context, correo ->
+                    onEnviarCVClick(context, correo)
+                },
+                onContactarClick = { context, numero ->
+                    onContactarClick(context, numero)
+                }
+            )
+        }
     }
 }
-
+// EmpleoDetails
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun EmpleoDetails(empleoList: List<EmpleoDto>) {
+fun EmpleoDetails(empleoList: List<EmpleoDto>, onEmpleoClick: (EmpleoDto) -> Unit) {
     LazyColumn {
         items(empleoList) { empleo ->
-            val fechaParseada =
-                LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
+            val fechaParseada = LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
             val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
+
             Surface(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.background
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(16.dp)
+                        .clickable { onEmpleoClick(empleo) },
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text("${empleo.nombre} - ${empleo.categoria}", style = MaterialTheme.typography.labelLarge)
                         Text(
-                            "${empleo.descripcion}",
+                            text = "${empleo.descripcion}",
                             style = MaterialTheme.typography.bodyMedium,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
@@ -313,6 +340,7 @@ fun EmpleoDetails(empleoList: List<EmpleoDto>) {
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }
+
                     Image(
                         painter = painterResource(id = R.drawable.click_png_45032),
                         contentDescription = null,
@@ -320,8 +348,138 @@ fun EmpleoDetails(empleoList: List<EmpleoDto>) {
                     )
                 }
             }
+
             Divider(modifier = Modifier.fillMaxWidth().height(1.dp), color = Color.Gray)
         }
     }
 }
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun MinimalDialog(
+    onDismissRequest: () -> Unit,
+    empleo: EmpleoDto,
+    onEnviarCVClick: (Context, String) -> Unit,
+    onContactarClick: (Context, String) -> Unit
+) {
+    val context = LocalContext.current
+    val fechaParseada = LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
+    val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
+
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(Alignment.Top)
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(Alignment.Top)
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Detalles del empleo",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Divider(modifier = Modifier.fillMaxWidth().height(1.dp), color = Color.Gray)
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Nombre:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text("${empleo.nombre}")
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Categoria:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text("${empleo.categoria}")
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Descripción:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text("${empleo.descripcion}")
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Provincia:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text("${empleo.provincia}")
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Direccion:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text("${empleo.direccion}")
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Correo:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text("${empleo.correo}")
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Telefono:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text("${empleo.numero}")
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Publicado:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text("$fechaFormateada")
+                }
+
+                Divider(modifier = Modifier.fillMaxWidth().height(1.dp), color = Color.Gray)
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(onClick = { onEnviarCVClick(context, empleo.correo) }) {
+                        Text("Enviar CV")
+                    }
+                    Button(onClick = { onContactarClick(context, empleo.numero) }) {
+                        Text("Contactar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun onEnviarCVClick(context: Context, correo: String) {
+    val subject = "CV - TRABAJAYA"
+    val intent = Intent(Intent.ACTION_SENDTO).apply {
+        data = Uri.parse("mailto:$correo")
+        putExtra(Intent.EXTRA_SUBJECT, subject)
+    }
+    context.startActivity(intent)
+}
+
+//Aqui hay un error que debo solucionar
+fun onContactarClick(context: Context, numero: String) {
+    val intent = Intent(Intent.ACTION_CALL).apply {
+        data = Uri.parse("tel:$numero")
+    }
+    context.startActivity(intent)
+}
+
 

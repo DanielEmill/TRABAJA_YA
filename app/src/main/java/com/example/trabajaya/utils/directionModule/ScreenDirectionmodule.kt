@@ -20,7 +20,7 @@ sealed class ScreenDirectionModule (val route: String, val title: String, val ic
     object P2 : ScreenDirectionModule("p2", "Vacante favorito", R.drawable.star)
     object P3 : ScreenDirectionModule("p3", "Enviar CV", R.drawable.access_time)
 
-    object Pconfig : ScreenDirectionModule("p_config", "Ajustes", R.drawable.settings)
+    object Pconfig : ScreenDirectionModule("p_config", "Sobre Nosotros", R.drawable.people)
 
     object Splash : ScreenDirectionModule("splash","", R.drawable.add_home_work)
 
