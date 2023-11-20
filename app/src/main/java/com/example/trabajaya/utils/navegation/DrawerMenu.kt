@@ -73,6 +73,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import android.Manifest.permission.CALL_PHONE
+import androidx.compose.material3.LinearProgressIndicator
 
 // Todo: Direño del menu. Este contiene las direcciones establecidas en el ScreenDirectionModule que serviran como entrada a la pantalla/s deseada/s a ingresar.
 
@@ -269,8 +270,7 @@ fun PantallaInicial(empleoViewModel: EmpleoViewModel = viewModel()) {
     val uiState by empleoViewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Text(
             text = "Empleos recientes:",
@@ -282,40 +282,59 @@ fun PantallaInicial(empleoViewModel: EmpleoViewModel = viewModel()) {
                 .wrapContentWidth(Alignment.CenterHorizontally)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        EmpleoDetails(empleoList = uiState.empleos) {
-            isModalVisible = true
-            selectedEmpleo = it
+
+        when {
+            uiState.isLoading -> {
+                Box(
+                    contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()
+                ) {
+                    LinearProgressIndicator()
+                }
+            }
+
+            uiState.error != null -> {
+                Text("Error: ${uiState.error}")
+            }
+
+            uiState.empleos != null -> {
+                Column {
+                    EmpleoDetails(empleoList = uiState.empleos) {
+                        isModalVisible = true
+                        selectedEmpleo = it
+                    }
+
+                    if (isModalVisible) {
+                        MinimalDialog(onDismissRequest = {
+                            isModalVisible = false
+                            selectedEmpleo = null
+                        },
+                            empleo = selectedEmpleo ?: EmpleoDto(),
+                            onEnviarCVClick = { context, correo ->
+                                onEnviarCVClick(context, correo)
+                            },
+                            onContactarClick = { context, numero ->
+                                onContactarClick(context, numero)
+                            })
+                    }
+                }
+            }
         }
 
-        if (isModalVisible) {
-            MinimalDialog(
-                onDismissRequest = {
-                    isModalVisible = false
-                    selectedEmpleo = null
-                },
-                empleo = selectedEmpleo ?: EmpleoDto(),
-                onEnviarCVClick = { context, correo ->
-                    onEnviarCVClick(context, correo)
-                },
-                onContactarClick = { context, numero ->
-                    onContactarClick(context, numero)
-                }
-            )
-        }
     }
 }
+
 // EmpleoDetails
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EmpleoDetails(empleoList: List<EmpleoDto>, onEmpleoClick: (EmpleoDto) -> Unit) {
     LazyColumn {
         items(empleoList) { empleo ->
-            val fechaParseada = LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
+            val fechaParseada =
+                LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
             val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
 
             Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.background
+                modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.background
             ) {
                 Row(
                     modifier = Modifier
@@ -326,7 +345,10 @@ fun EmpleoDetails(empleoList: List<EmpleoDto>, onEmpleoClick: (EmpleoDto) -> Uni
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("${empleo.nombre} - ${empleo.categoria}", style = MaterialTheme.typography.labelLarge)
+                        Text(
+                            "${empleo.nombre} - ${empleo.categoria}",
+                            style = MaterialTheme.typography.labelLarge
+                        )
                         Text(
                             text = "${empleo.descripcion}",
                             style = MaterialTheme.typography.bodyMedium,
@@ -354,10 +376,15 @@ fun EmpleoDetails(empleoList: List<EmpleoDto>, onEmpleoClick: (EmpleoDto) -> Uni
                 }
             }
 
-            Divider(modifier = Modifier.fillMaxWidth().height(1.dp), color = Color.Gray)
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp), color = Color.Gray
+            )
         }
     }
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MinimalDialog(
@@ -367,7 +394,8 @@ fun MinimalDialog(
     onContactarClick: (Context, String) -> Unit
 ) {
     val context = LocalContext.current
-    val fechaParseada = LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
+    val fechaParseada =
+        LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
     val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -389,13 +417,20 @@ fun MinimalDialog(
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                Divider(modifier = Modifier.fillMaxWidth().height(1.dp), color = Color.Gray)
+                Divider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp), color = Color.Gray
+                )
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Nombre:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text(
+                        "Nombre:",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
                     Text("${empleo.nombre}")
                 }
 
@@ -403,7 +438,10 @@ fun MinimalDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Categoria:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text(
+                        "Categoria:",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
                     Text("${empleo.categoria}")
                 }
 
@@ -411,7 +449,10 @@ fun MinimalDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Descripción:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text(
+                        "Descripción:",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
                     Text("${empleo.descripcion}")
                 }
 
@@ -419,28 +460,40 @@ fun MinimalDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Provincia:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text(
+                        "Provincia:",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
                     Text("${empleo.provincia}")
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Direccion:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text(
+                        "Direccion:",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
                     Text("${empleo.direccion}")
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Correo:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text(
+                        "Correo:",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
                     Text("${empleo.correo}")
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Telefono:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text(
+                        "Telefono:",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
                     Text("${empleo.numero}")
                 }
 
@@ -448,11 +501,18 @@ fun MinimalDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Publicado:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                    Text(
+                        "Publicado:",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
                     Text("$fechaFormateada")
                 }
 
-                Divider(modifier = Modifier.fillMaxWidth().height(1.dp), color = Color.Gray)
+                Divider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp), color = Color.Gray
+                )
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -486,16 +546,13 @@ fun onContactarClick(context: Context, numero: String) {
         data = Uri.parse("tel:$numero")
     }
     if (ContextCompat.checkSelfPermission(
-            context,
-            CALL_PHONE
+            context, CALL_PHONE
         ) == PackageManager.PERMISSION_GRANTED
     ) {
         context.startActivity(intent)
     } else {
         ActivityCompat.requestPermissions(
-            context as Activity,
-            arrayOf(CALL_PHONE),
-            MY_PERMISSIONS_REQUEST_CALL_PHONE
+            context as Activity, arrayOf(CALL_PHONE), MY_PERMISSIONS_REQUEST_CALL_PHONE
         )
     }
 }
