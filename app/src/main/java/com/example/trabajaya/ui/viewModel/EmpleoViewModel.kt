@@ -1,6 +1,7 @@
 package com.example.trabajaya.ui.viewModel
 
 
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -26,6 +27,7 @@ data class EmpleoListState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val empleos: List<EmpleoDto> = emptyList(),
+    val selectedUri: Uri? = null
 )
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -40,7 +42,9 @@ class EmpleoViewModel @Inject constructor(
         Log.d("EmpleoViewModel", "ViewModel initialized")
         loadEmpleos()
     }
-
+    fun setSelectedUri(uri: Uri) {
+        _uiState.update { it.copy(selectedUri = uri) }
+    }
     fun loadEmpleos() {
         viewModelScope.launch {
             try {
@@ -78,5 +82,6 @@ class EmpleoViewModel @Inject constructor(
                 Log.e("EmpleoViewModel", "Loading empleos - Exception: ${e.message}")
             }
         }
+
     }
 }
