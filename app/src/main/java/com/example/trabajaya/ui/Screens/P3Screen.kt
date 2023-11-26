@@ -8,21 +8,15 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,11 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.trabajaya.ui.viewModel.EmpleoViewModel
-import com.example.trabajaya.utils.directionModule.ScreenDirectionModule
-import kotlinx.coroutines.launch
 import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileOutputStream
@@ -51,8 +41,7 @@ import java.io.InputStream
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun P3Screen(
-    navController: NavController, empleoViewModel: EmpleoViewModel = hiltViewModel()
-) {
+    navController: NavController, ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var selectedUri by remember { mutableStateOf<Uri?>(null) }
