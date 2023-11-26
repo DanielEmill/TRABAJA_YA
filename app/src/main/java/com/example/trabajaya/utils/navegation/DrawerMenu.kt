@@ -23,7 +23,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -73,7 +72,12 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import android.Manifest.permission.CALL_PHONE
+import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.runtime.collectAsState
+import androidx.hilt.navigation.compose.hiltViewModel
 
 // Todo: Direño del menu. Este contiene las direcciones establecidas en el ScreenDirectionModule que serviran como entrada a la pantalla/s deseada/s a ingresar.
 
@@ -385,18 +389,28 @@ fun EmpleoDetails(empleoList: List<EmpleoDto>, onEmpleoClick: (EmpleoDto) -> Uni
     }
 }
 
+@SuppressLint("UnrememberedMutableState")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MinimalDialog(
     onDismissRequest: () -> Unit,
     empleo: EmpleoDto,
     onEnviarCVClick: (Context, String) -> Unit,
-    onContactarClick: (Context, String) -> Unit
+    onContactarClick: (Context, String) -> Unit,
+    empleoViewModel: EmpleoViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val fechaParseada =
         LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
     val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
+
+
+    val favorites by empleoViewModel.favorites.collectAsState()
+    var isFavorito by mutableStateOf(false)
+    val currentFavorite = favorites.find { it.empleoId == empleo.empleoId }
+    if (currentFavorite != null) {
+        isFavorito = true
+    }
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -412,11 +426,40 @@ fun MinimalDialog(
                     .wrapContentHeight(Alignment.Top)
                     .padding(16.dp)
             ) {
-                Text(
-                    text = "Detalles del empleo",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Detalles del empleo",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    IconButton(
+                        onClick = { isFavorito = !isFavorito },
+                    ) {
+                        if (isFavorito) {
+                            Icon(
+                                imageVector = Icons.Rounded.Star,
+                                contentDescription = "Favorito",
+                                modifier = Modifier.size(48.dp)
+                            )
+                            if (currentFavorite == null) {
+                                empleoViewModel.GuardarEmpleoFavorito(empleo)
+                            }
+                        } else {
+                            Icon(
+                                imageVector = Icons.Filled.StarBorder,
+                                contentDescription = "Favorite",
+                                modifier = Modifier.size(48.dp)
+                            )
+                            if (currentFavorite != null) {
+                                empleoViewModel.Borradordefavorito(currentFavorite)
+                            }
+                        }
+                    }
+                }
                 Divider(
                     modifier = Modifier
                         .fillMaxWidth()

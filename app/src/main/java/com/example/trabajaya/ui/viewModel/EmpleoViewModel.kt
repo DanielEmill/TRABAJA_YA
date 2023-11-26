@@ -5,23 +5,21 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.trabajaya.data.local.EmpleoRepositoryLocal
+import com.example.trabajaya.data.local.entities.EmpleoLocal
 import com.example.trabajaya.data.remote.dto.EmpleoDto
 import com.example.trabajaya.data.repository.EmpleoRepository
 import com.example.trabajaya.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 data class EmpleoListState(
     val isLoading: Boolean = false,
@@ -30,14 +28,21 @@ data class EmpleoListState(
     val selectedUri: Uri? = null
 )
 
+
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class EmpleoViewModel @Inject constructor(
-    private val empleoRepository: EmpleoRepository
+    private val empleoRepository: EmpleoRepository,
+    private val empleoRepositoryLocal: EmpleoRepositoryLocal
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(EmpleoListState())
     val uiState: StateFlow<EmpleoListState> = _uiState.asStateFlow()
 
+    var favorites : StateFlow<List<EmpleoLocal>> = empleoRepositoryLocal.getAll().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList()
+    )
     init {
         Log.d("EmpleoViewModel", "ViewModel initialized")
         loadEmpleos()
@@ -84,4 +89,26 @@ class EmpleoViewModel @Inject constructor(
         }
 
     }
+    fun GuardarEmpleoFavorito(empleo: EmpleoDto){
+        viewModelScope.launch {
+            val Empleo = EmpleoLocal(
+                nombre = empleo.nombre,
+                descripcion = empleo.descripcion,
+                categoria = empleo.categoria,
+                provincia = empleo.provincia,
+                fechaDePublicacion = empleo.fechaDePublicacion,
+                numero = empleo.numero,
+                correo = empleo.correo,
+                direccion = empleo.direccion
+            )
+            empleoRepositoryLocal.save(Empleo)
+        }
+    }
+
+    fun Borradordefavorito(empleo: EmpleoLocal){
+        viewModelScope.launch {
+            empleoRepositoryLocal.delete(empleo)
+        }
+    }
+
 }

@@ -105,8 +105,14 @@ dependencies {
     implementation ("com.squareup.moshi:moshi-kotlin:1.13.0")
     implementation ("com.squareup.retrofit2:converter-moshi:2.9.0")
 
+
+    implementation("androidx.compose.material:material-icons-extended")
+
+    
     androidTestImplementation(composeBom)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+
 }
