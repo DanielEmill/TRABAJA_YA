@@ -1,5 +1,3 @@
-
-
 package com.example.trabajaya.ui.Screens
 
 import android.annotation.SuppressLint
@@ -8,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,13 +19,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Divider
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -41,9 +40,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,36 +56,20 @@ import com.example.trabajaya.R
 import com.example.trabajaya.data.remote.dto.EmpleoDto
 import com.example.trabajaya.ui.viewModel.EmpleoViewModel
 import com.example.trabajaya.utils.directionModule.ScreenDirectionModule
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun P1Screen(navController: NavController, empleoViewModel: EmpleoViewModel = hiltViewModel()) {
-    val scope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .size(200.dp, 200.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        Spacer(modifier = Modifier.height(20.dp))
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.Start
-        ){
-            Icon(
-                imageVector = Icons.Filled.ArrowBack,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(4.dp)
-                    .clickable {
-                        scope.launch { navController.navigate(ScreenDirectionModule.PMain.route) }
-                    }
-            )
-        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -92,7 +77,8 @@ fun P1Screen(navController: NavController, empleoViewModel: EmpleoViewModel = hi
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            PantallaBA(empleoViewModel)
+            Spacer(modifier = Modifier.padding(20.dp))
+            PantallaBA(navController, empleoViewModel)
         }
     }
 }
@@ -100,7 +86,9 @@ fun P1Screen(navController: NavController, empleoViewModel: EmpleoViewModel = hi
 @SuppressLint("StateFlowValueCalledInComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PantallaBA(empleoViewModel: EmpleoViewModel = viewModel()) {
+fun PantallaBA(navController:  NavController, empleoViewModel: EmpleoViewModel = viewModel()) {
+
+    val scope = rememberCoroutineScope()
 
     var isModalVisible by remember { mutableStateOf(false) }
     var selectedEmpleo by remember { mutableStateOf<EmpleoDto?>(null) }
@@ -110,15 +98,40 @@ fun PantallaBA(empleoViewModel: EmpleoViewModel = viewModel()) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Text(
-            text = "Busqueda Avanzada:",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(7.dp)
-                .wrapContentWidth(Alignment.CenterHorizontally)
-        )
+                .background(Color.Gray),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(30.dp)
+                    .clickable {
+                        scope.launch { navController.navigate(ScreenDirectionModule.PMain.route) }
+                    },
+                tint = Color.White
+            )
+            Text(
+                text = "Busqua tu provincia",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.White,
+                fontSize = 30.sp,
+                modifier = Modifier
+                    .padding(16.dp)
+            )
+            Image(
+                painter = painterResource(id = R.drawable.click_png_45032),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(60.dp)
+                    .padding(10.dp),
+                colorFilter = ColorFilter.tint(Color.White)
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
         when {
@@ -170,9 +183,10 @@ fun PantallaBA(empleoViewModel: EmpleoViewModel = viewModel()) {
 @Composable
 fun EmpleoDetailsF(
     empleoList: List<EmpleoDto>,
-    onEmpleoClick: (EmpleoDto) -> Unit
+    onEmpleoClick: (EmpleoDto) -> Unit,
 ) {
-    var filtrar by remember { mutableStateOf("Ingresar") }
+    var filtrar by remember { mutableStateOf("") }
+    val interactionSource = remember { MutableInteractionSource() }
 
     LazyColumn {
         item {
@@ -187,85 +201,95 @@ fun EmpleoDetailsF(
                     onValueChange = { filtrar = it },
                     modifier = Modifier
                         .width(300.dp)
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(30.dp)
+                        .padding(16.dp)
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused) {
+                                filtrar = ""
+                            }
+                        },
+                    shape = RoundedCornerShape(30.dp),
+                    interactionSource = interactionSource
                 )
             }
         }
 
         // Todo: Creacion de un filtro para la busqueda de empleos por provincia.
-
-        // Todo: La variable llamada filteredEmployments es la que se encarga de filtrar los empleos
+        // Todo: La variable llamada filteredEmployments es la que se encarga de filtrar los empleos.
 
         val filtrarEmpleos = empleoList.filter { empleo ->
-            val Buscar = filtrar.lowercase()
-            empleo.provincia.lowercase().contentEquals(Buscar) ||
-                    empleo.provincia.lowercase().contains(Buscar) ||
-                    empleo.provincia.lowercase().startsWith(Buscar) ||
-                    empleo.provincia.lowercase().endsWith(Buscar)
+            val buscar = filtrar.lowercase()
+            empleo.provincia.lowercase().contentEquals(buscar) ||
+                    empleo.provincia.lowercase().contains(buscar) ||
+                    empleo.categoria.lowercase().contains(buscar)
         }
 
-        val Buscar = filtrar.lowercase()
-
-        val filtrarPorProvincias = if (filtrar.lowercase().contains(Buscar)) {
-            filtrarEmpleos
-        } else {
-            filtrarEmpleos.filter { it.provincia.lowercase() == filtrar.lowercase() }
-        }
-
-        items(filtrarPorProvincias) { empleo ->
+        items(filtrarEmpleos) { empleo ->
             val fechaParseada =
                 LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
             val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
             Surface(
-                modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.background
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            "${empleo.nombre} - ${empleo.categoria}",
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        Text(
-                            text = "${empleo.descripcion}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(2.dp)
-                                .background(Color.Gray.copy(alpha = 0.2f))
-                                .padding(vertical = 8.dp)
-                        )
-                        Text(
-                            text = "Publicado el: $fechaFormateada en ${empleo.provincia}",
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-
-                    Image(
-                        painter = painterResource(id = R.drawable.click_png_45032),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clickable { onEmpleoClick(empleo) }
-                    )
-                }
-            }
-
-            Divider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(1.dp), color = Color.Gray
-            )
+                    .padding(25.dp)
+                    .shadow(elevation = 15.dp, shape = RoundedCornerShape(10.dp))
+            ) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.Gray),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "${empleo.nombre}",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = Color.White,
+                                fontSize = 20.sp,
+                                modifier = Modifier
+                                    .padding(16.dp)
+                            )
+                            Image(
+                                painter = painterResource(id = R.drawable.click_png_45032),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .padding(10.dp)
+                                    .clickable {
+                                        onEmpleoClick(empleo)
+                                    }
+                            )
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = "${empleo.categoria} - ${empleo.provincia}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "Publicado el: $fechaFormateada",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

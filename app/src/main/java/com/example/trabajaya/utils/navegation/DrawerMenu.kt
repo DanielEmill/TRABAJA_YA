@@ -23,6 +23,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -72,12 +73,14 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import android.Manifest.permission.CALL_PHONE
-import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material3.IconButton
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.runtime.collectAsState
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
 
 // Todo: Direño del menu. Este contiene las direcciones establecidas en el ScreenDirectionModule que serviran como entrada a la pantalla/s deseada/s a ingresar.
 
@@ -127,13 +130,14 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
             )
             Spacer(Modifier.height(15.dp))
             item_1.forEach { item ->
-                NavigationDrawerItem(icon = {
-                    if (item.icon is Int) {
-                        Icon(painterResource(id = item.icon), contentDescription = null)
-                    } else {
-                        Icon(Icons.Default.Warning, contentDescription = null)
-                    }
-                },
+                NavigationDrawerItem(
+                    icon = {
+                        if (item.icon is Int) {
+                            Icon(painterResource(id = item.icon), contentDescription = null)
+                        } else {
+                            Icon(Icons.Default.Warning, contentDescription = null)
+                        }
+                    },
                     label = { Text(item.title, fontSize = 16.sp, color = Color.Black) },
                     selected = item == selectedItem_1.value,
                     onClick = {
@@ -146,13 +150,14 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
             }
             Spacer(modifier = Modifier.padding(8.dp))
             item_2.forEach { item ->
-                NavigationDrawerItem(icon = {
-                    if (item.icon is Int) {
-                        Icon(painterResource(id = item.icon), contentDescription = null)
-                    } else {
-                        Icon(Icons.Default.Warning, contentDescription = null)
-                    }
-                },
+                NavigationDrawerItem(
+                    icon = {
+                        if (item.icon is Int) {
+                            Icon(painterResource(id = item.icon), contentDescription = null)
+                        } else {
+                            Icon(Icons.Default.Warning, contentDescription = null)
+                        }
+                    },
                     label = { Text(item.title, fontSize = 16.sp, color = Color.Black) },
                     selected = item == selectedItem_2.value,
                     onClick = {
@@ -165,13 +170,14 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
             }
             Spacer(modifier = Modifier.padding(8.dp))
             item_3.forEach { item ->
-                NavigationDrawerItem(icon = {
-                    if (item.icon is Int) {
-                        Icon(painterResource(id = item.icon), contentDescription = null)
-                    } else {
-                        Icon(Icons.Default.Warning, contentDescription = null)
-                    }
-                },
+                NavigationDrawerItem(
+                    icon = {
+                        if (item.icon is Int) {
+                            Icon(painterResource(id = item.icon), contentDescription = null)
+                        } else {
+                            Icon(Icons.Default.Warning, contentDescription = null)
+                        }
+                    },
                     label = { Text(item.title, fontSize = 16.sp, color = Color.Black) },
                     selected = item == selectedItem_3.value,
                     onClick = {
@@ -184,13 +190,14 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
             }
             Spacer(modifier = Modifier.padding(8.dp))
             item_4.forEach { item ->
-                NavigationDrawerItem(icon = {
-                    if (item.icon is Int) {
-                        Icon(painterResource(id = item.icon), contentDescription = null)
-                    } else {
-                        Icon(Icons.Default.Warning, contentDescription = null)
-                    }
-                },
+                NavigationDrawerItem(
+                    icon = {
+                        if (item.icon is Int) {
+                            Icon(painterResource(id = item.icon), contentDescription = null)
+                        } else {
+                            Icon(Icons.Default.Warning, contentDescription = null)
+                        }
+                    },
                     label = { Text(item.title, fontSize = 16.sp, color = Color.Black) },
                     selected = item == selectedItem_4.value,
                     onClick = {
@@ -203,13 +210,14 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
             }
             Spacer(modifier = Modifier.padding(8.dp))
             item_5.forEach { item ->
-                NavigationDrawerItem(icon = {
-                    if (item.icon is Int) {
-                        Icon(painterResource(id = item.icon), contentDescription = null)
-                    } else {
-                        Icon(Icons.Default.Warning, contentDescription = null)
-                    }
-                },
+                NavigationDrawerItem(
+                    icon = {
+                        if (item.icon is Int) {
+                            Icon(painterResource(id = item.icon), contentDescription = null)
+                        } else {
+                            Icon(Icons.Default.Warning, contentDescription = null)
+                        }
+                    },
                     label = { Text(item.title, fontSize = 16.sp, color = Color.Black) },
                     selected = item == selectedItem_5.value,
                     onClick = {
@@ -223,30 +231,47 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
         }
     }, content = {
         Column(
-            modifier = Modifier
-                .size(200.dp, 200.dp)
-                .padding(5.dp),
-            horizontalAlignment = Alignment.Start
+            modifier = Modifier.fillMaxSize()
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Icon(imageVector = Icons.Filled.List,
-                contentDescription = null,
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
                 modifier = Modifier
-                    .size(50.dp, 50.dp)
-                    .padding(4.dp)
-                    .clickable {
-                        scope.launch { drawerState.open() }
-                    })
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            PantallaInicial(empleoViewModel)
+                    .fillMaxWidth()
+                    .background(Color.Blue),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.List,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(40.dp)
+                        .clickable {
+                            scope.launch { drawerState.open() }
+                        },
+                    tint = Color.White
+                )
+                Text(
+                    text = "Empleos recientes",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.White,
+                    fontSize = 30.sp,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.workspaces),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(60.dp)
+                        .padding(10.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            PantallaInicial(navController, empleoViewModel)
         }
     })
 }
@@ -266,27 +291,16 @@ fun CustomIcon(resourceId: Int) {
 @SuppressLint("StateFlowValueCalledInComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PantallaInicial(empleoViewModel: EmpleoViewModel = viewModel()) {
+fun PantallaInicial(navController: NavController, empleoViewModel: EmpleoViewModel = viewModel()) {
+
     var isModalVisible by remember { mutableStateOf(false) }
     var selectedEmpleo by remember { mutableStateOf<EmpleoDto?>(null) }
 
-    val scope = rememberCoroutineScope()
     val uiState by empleoViewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Text(
-            text = "Empleos recientes:",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(7.dp)
-                .wrapContentWidth(Alignment.CenterHorizontally)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
         when {
             uiState.isLoading -> {
                 Box(
@@ -314,103 +328,150 @@ fun PantallaInicial(empleoViewModel: EmpleoViewModel = viewModel()) {
                         },
                             empleo = selectedEmpleo ?: EmpleoDto(),
                             onEnviarCVClick = { context, correo ->
-                                onEnviarCVClick(context, correo)
+                                onEnviarCVClick(
+                                    context,
+                                    correo
+                                )
                             },
                             onContactarClick = { context, numero ->
-                                onContactarClick(context, numero)
+                                onContactarClick(
+                                    context,
+                                    numero
+                                )
                             })
                     }
                 }
             }
         }
-
     }
 }
 
-// EmpleoDetails
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun EmpleoDetails(empleoList: List<EmpleoDto>, onEmpleoClick: (EmpleoDto) -> Unit) {
+fun EmpleoDetails(
+    empleoList: List<EmpleoDto>,
+    onEmpleoClick: (EmpleoDto) -> Unit,
+) {
+    var filtrar by remember { mutableStateOf("") }
+    val interactionSource = remember { MutableInteractionSource() }
+
     LazyColumn {
-        items(empleoList) { empleo ->
+        item {
+            // Todo: Casilla de busqueda de empleos por provincia.
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                OutlinedTextField(
+                    value = filtrar,
+                    onValueChange = { filtrar = it },
+                    modifier = Modifier
+                        .width(300.dp)
+                        .padding(16.dp)
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused) {
+                                filtrar = ""
+                            }
+                        },
+                    shape = RoundedCornerShape(30.dp),
+                    interactionSource = interactionSource
+                )
+            }
+        }
+
+        // Todo: Creacion de un filtro para la busqueda de empleos por provincia.
+        // Todo: La variable llamada filteredEmployments es la que se encarga de filtrar los empleos.
+
+        val filtrarEmpleos = empleoList.filter { empleo ->
+            val buscar = filtrar.lowercase()
+            empleo.provincia.lowercase().contentEquals(buscar) ||
+                    empleo.provincia.lowercase().contains(buscar)
+        }
+
+        items(filtrarEmpleos) { empleo ->
             val fechaParseada =
                 LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
             val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
-
             Surface(
-                modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.background
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .clickable { onEmpleoClick(empleo) },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            "${empleo.nombre} - ${empleo.categoria}",
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        Text(
-                            text = "${empleo.descripcion}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(2.dp)
-                                .background(Color.Gray.copy(alpha = 0.2f))
-                                .padding(vertical = 8.dp)
-                        )
-                        Text(
-                            text = "Publicado el: $fechaFormateada en ${empleo.provincia}",
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-
-                    Image(
-                        painter = painterResource(id = R.drawable.click_png_45032),
-                        contentDescription = null,
-                        modifier = Modifier.size(50.dp)
-                    )
-                }
-            }
-
-            Divider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(1.dp), color = Color.Gray
-            )
+                    .padding(25.dp)
+                    .shadow(elevation = 15.dp, shape = RoundedCornerShape(10.dp))
+            ) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.Gray),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "${empleo.nombre}",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = Color.White,
+                                fontSize = 20.sp,
+                                modifier = Modifier
+                                    .padding(16.dp)
+                            )
+                            Image(
+                                painter = painterResource(id = R.drawable.click_png_45032),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .padding(10.dp)
+                                    .clickable {
+                                        onEmpleoClick(empleo)
+                                    }
+                            )
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = "${empleo.categoria} - ${empleo.provincia}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "Publicado el: $fechaFormateada",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
-@SuppressLint("UnrememberedMutableState")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MinimalDialog(
     onDismissRequest: () -> Unit,
     empleo: EmpleoDto,
     onEnviarCVClick: (Context, String) -> Unit,
-    onContactarClick: (Context, String) -> Unit,
-    empleoViewModel: EmpleoViewModel = hiltViewModel()
+    onContactarClick: (Context, String) -> Unit
 ) {
     val context = LocalContext.current
     val fechaParseada =
         LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
     val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
-
-
-    val favorites by empleoViewModel.favorites.collectAsState()
-    var isFavorito by mutableStateOf(false)
-    val currentFavorite = favorites.find { it.empleoId == empleo.empleoId }
-    if (currentFavorite != null) {
-        isFavorito = true
-    }
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -426,40 +487,11 @@ fun MinimalDialog(
                     .wrapContentHeight(Alignment.Top)
                     .padding(16.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Detalles del empleo",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    IconButton(
-                        onClick = { isFavorito = !isFavorito },
-                    ) {
-                        if (isFavorito) {
-                            Icon(
-                                imageVector = Icons.Rounded.Star,
-                                contentDescription = "Favorito",
-                                modifier = Modifier.size(48.dp)
-                            )
-                            if (currentFavorite == null) {
-                                empleoViewModel.GuardarEmpleoFavorito(empleo)
-                            }
-                        } else {
-                            Icon(
-                                imageVector = Icons.Filled.StarBorder,
-                                contentDescription = "Favorite",
-                                modifier = Modifier.size(48.dp)
-                            )
-                            if (currentFavorite != null) {
-                                empleoViewModel.Borradordefavorito(currentFavorite)
-                            }
-                        }
-                    }
-                }
+                Text(
+                    text = "Detalles del empleo",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
                 Divider(
                     modifier = Modifier
                         .fillMaxWidth()
