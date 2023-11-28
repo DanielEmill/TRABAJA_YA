@@ -128,6 +128,9 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
     val selectedItem_4 = remember { mutableStateOf(item_4[0]) }
     val selectedItem_5 = remember { mutableStateOf(item_5[0]) }
 
+
+    var filtroBusqueda by remember { mutableStateOf("") }
+
     ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
         ModalDrawerSheet {
             Spacer(Modifier.height(30.dp))
@@ -275,13 +278,13 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
                         .padding(16.dp)
                         .wrapContentWidth(Alignment.CenterHorizontally)
                 )
-                Image(
-                    painter = painterResource(id = R.drawable.workspaces),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(60.dp)
-                        .padding(10.dp)
+                /*
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search Icon"
+                    //DEBEMOS HACER Q ESTO FUNCIONE
                 )
+                 */
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -302,14 +305,13 @@ fun CustomIcon(resourceId: Int) {
     )
 }
 
-// Pantalla principal
 @SuppressLint("StateFlowValueCalledInComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PantallaInicial(navController: NavController, empleoViewModel: EmpleoViewModel = viewModel()) {
-
     var isModalVisible by remember { mutableStateOf(false) }
     var selectedEmpleo by remember { mutableStateOf<EmpleoDto?>(null) }
+    var filtroBusqueda by remember { mutableStateOf("") }
 
     val uiState by empleoViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -331,16 +333,21 @@ fun PantallaInicial(navController: NavController, empleoViewModel: EmpleoViewMod
 
             uiState.empleos != null -> {
                 Column {
-                    EmpleoDetails(empleoList = uiState.empleos) {
-                        isModalVisible = true
-                        selectedEmpleo = it
-                    }
+                    EmpleoDetails(
+                        empleoList = uiState.empleos,
+                        filtroCategoria = filtroBusqueda,
+                        onEmpleoClick = {
+                            isModalVisible = true
+                            selectedEmpleo = it
+                        }
+                    )
 
                     if (isModalVisible) {
-                        MinimalDialog(onDismissRequest = {
-                            isModalVisible = false
-                            selectedEmpleo = null
-                        },
+                        MinimalDialog(
+                            onDismissRequest = {
+                                isModalVisible = false
+                                selectedEmpleo = null
+                            },
                             empleo = selectedEmpleo ?: EmpleoDto(),
                             onEnviarCVClick = { context, correo ->
                                 onEnviarCVClick(
@@ -353,20 +360,23 @@ fun PantallaInicial(navController: NavController, empleoViewModel: EmpleoViewMod
                                     context,
                                     numero
                                 )
-                            })
+                            }
+                        )
                     }
                 }
             }
         }
     }
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EmpleoDetails(
     empleoList: List<EmpleoDto>,
+    filtroCategoria: String,
     onEmpleoClick: (EmpleoDto) -> Unit,
 ) {
-    var filtroCategoria by remember { mutableStateOf("") }
+    var filtroBusqueda by remember { mutableStateOf("") }
     var isFilterVisible by remember { mutableStateOf(false) }
 
     LazyColumn {
@@ -379,8 +389,8 @@ fun EmpleoDetails(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     OutlinedTextField(
-                        value = filtroCategoria,
-                        onValueChange = { filtroCategoria = it },
+                        value = filtroBusqueda,
+                        onValueChange = { filtroBusqueda = it },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
@@ -413,7 +423,8 @@ fun EmpleoDetails(
         }
 
         items(empleoList.filter { empleo ->
-            empleo.categoria.lowercase().contains(filtroCategoria.lowercase())
+            empleo.categoria.lowercase().contains(filtroCategoria.lowercase()) &&
+                    (filtroBusqueda.isEmpty() || empleo.descripcion.lowercase().contains(filtroBusqueda.lowercase()))
         }) { empleo ->
             val fechaParseada =
                 LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)

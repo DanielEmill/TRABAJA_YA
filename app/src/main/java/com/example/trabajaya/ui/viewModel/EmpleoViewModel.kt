@@ -28,6 +28,8 @@ data class EmpleoListState(
     val selectedUri: Uri? = null
 )
 
+private val _empleos = MutableStateFlow<List<EmpleoDto>?>(null)
+val empleos: StateFlow<List<EmpleoDto>?> = _empleos
 
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
