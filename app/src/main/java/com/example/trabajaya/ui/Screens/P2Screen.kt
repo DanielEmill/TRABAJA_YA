@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,6 +48,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -105,6 +107,9 @@ fun PantallaInicial(empleoViewModel: EmpleoViewModel = viewModel()) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        Spacer(modifier = Modifier.height(20.dp))
+
+
         Text(
             text = "Empleos favorito:",
             fontSize = 24.sp,
@@ -153,45 +158,72 @@ fun EmpleoDetails(empleoList: List<EmpleoLocal>, onEmpleoClick: (EmpleoLocal) ->
             val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
 
             Surface(
-                modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.background
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .background(Color.White)
+                    .clickable {
+                        onEmpleoClick(empleo)
+                    }
+                    .shadow(elevation = 8.dp, shape = RoundedCornerShape(10.dp))
             ) {
-                Row(
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
-                        .clickable { onEmpleoClick(empleo) },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        .padding(10.dp),
+                    shape = RoundedCornerShape(16.dp),
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            "${empleo.nombre} - ${empleo.categoria}",
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        Text(
-                            text = "${empleo.descripcion}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Spacer(
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(2.dp)
-                                .background(Color.Gray.copy(alpha = 0.2f))
-                                .padding(vertical = 8.dp)
-                        )
-                        Text(
-                            text = "Publicado el: $fechaFormateada en ${empleo.provincia}",
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
+                                .background(Color.LightGray)
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "${empleo.nombre}",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Blue,
+                                modifier = Modifier
+                                    .weight(1f)
+                            )
+                            Image(
+                                painter = painterResource(id = R.drawable.click_png_45032),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .clickable {
+                                        onEmpleoClick(empleo)
+                                    }
+                            )
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = "${empleo.categoria} - ${empleo.provincia}",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color.Black
+                            )
+                            Text(
+                                text = "Publicado el: $fechaFormateada",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color.Black
+                            )
+                        }
                     }
-
-                    Image(
-                        painter = painterResource(id = R.drawable.click_png_45032),
-                        contentDescription = null,
-                        modifier = Modifier.size(50.dp)
-                    )
                 }
             }
 

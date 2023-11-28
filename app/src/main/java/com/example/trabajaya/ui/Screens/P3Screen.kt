@@ -7,20 +7,34 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,18 +44,49 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.core.content.FileProvider
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.trabajaya.ui.viewModel.EmpleoViewModel
+import com.example.trabajaya.utils.directionModule.ScreenDirectionModule
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun P3Screen(
-    navController: NavController, ) {
+fun P3Screen(navController: NavController) {
+    Column(
+        modifier = Modifier
+            .size(200.dp, 200.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Spacer(modifier = Modifier.padding(20.dp))
+            P3ScreenBody(navController)
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun P3ScreenBody(
+    navController: NavController
+) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var selectedUri by remember { mutableStateOf<Uri?>(null) }
@@ -54,55 +99,117 @@ fun P3Screen(
             uri?.let { selectedUri = it }
         }
 
+    val transition = rememberInfiniteTransition()
+    val angles by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 5000,
+                easing = LinearEasing
+            ),
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize()
     ) {
-        Text(
-            text = "Sube tu CV",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF8BC34A)),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(30.dp)
+                    .clickable {
+                        scope.launch { navController.navigate(ScreenDirectionModule.PMain.route) }
+                    },
+                tint = Color.White
+            )
+            Text(
+                text = "Enviar mi CV",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.White,
+                fontSize = 30.sp,
+                modifier = Modifier
+                    .padding(16.dp)
+            )
+            Icon(
+                imageVector = Icons.Filled.StarBorder,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(40.dp)
+                    .rotate(angles),
+                tint = Color.White
+            )
+        }
 
-        Text(
-            text = "Nosotros te buscamos el trabajo",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Sube tu CV",
+                style = MaterialTheme.typography.titleLarge,
+                fontSize = 30.sp,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
 
-        UploadButton(onClick = {
-            launcher.launch("application/pdf")
-        })
+            Text(
+                text = "Nosotros te buscamos el trabajo",
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (selectedUri != null) {
-            SendButton(onClick = {
-                selectedUri?.let { uri ->
-                    sendEmailWithAttachment(context, uri)
-                }
+            UploadButton(onClick = {
+                launcher.launch("application/pdf")
             })
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (selectedUri != null) {
+                SendButton(onClick = {
+                    selectedUri?.let { uri ->
+                        sendEmailWithAttachment(context, uri)
+                    }
+                })
+            }
         }
     }
 }
 
 @Composable
 fun UploadButton(onClick: () -> Unit) {
-    IconButton(
-        onClick = onClick,
+    Surface (
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.primary)
-            .padding(16.dp)
-            .size(56.dp)
+            .shadow(8.dp, RoundedCornerShape(15.dp)),
     ) {
-        Icon(
-            imageVector = Icons.Filled.Add,
-            contentDescription = "Subir CV",
-            tint = MaterialTheme.colorScheme.onPrimary
-        )
+        IconButton(
+            onClick = onClick,
+            modifier = Modifier
+                .background(Color(0xFF8BC34A))
+                .padding(16.dp)
+                .size(56.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                modifier = Modifier
+                    .size(30.dp),
+                contentDescription = "Subir CV",
+                tint =  Color(0xFFFEFFFC)
+            )
+        }
     }
 }
 
@@ -111,14 +218,14 @@ fun SendButton(onClick: () -> Unit) {
     IconButton(
         onClick = onClick,
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.primary)
+            .background(Color(0xFF8BC34A))
             .padding(16.dp)
             .size(56.dp)
     ) {
         Icon(
             imageVector = Icons.Default.Send,
             contentDescription = "Enviar",
-            tint = MaterialTheme.colorScheme.primary
+            tint = Color(0xFF8BC34A)
         )
     }
 }

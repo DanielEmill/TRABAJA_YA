@@ -2,13 +2,23 @@ package com.example.trabajaya.ui.SplashScreen
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -26,7 +36,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun MainSplashScreen(navController: NavHostController): NavHostController {
 
-    LaunchedEffect(key1 =  true)
+    LaunchedEffect(key1 = true)
     {
         delay(2000)
         navController.popBackStack()
@@ -46,7 +56,7 @@ fun Splash() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-       com.example.trabajaya.utils.navegation.CustomIcon(resourceId = R.drawable.logo)
+        CustomIcon(resourceId = R.drawable.logo)
     }
 }
 
@@ -58,12 +68,47 @@ fun SplashScreenPreview() {
 
 @Composable
 fun CustomIcon(resourceId: Int) {
-    Image(
-        painter = painterResource(id = resourceId),
-        contentDescription = null,
-        colorFilter = ColorFilter.tint(Color.White),
-        contentScale = ContentScale.Fit,
+
+    val infiniteTransition = rememberInfiniteTransition()
+    val angle by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 2000,
+                easing = LinearEasing
+            ),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    val transition = rememberInfiniteTransition()
+    val angles by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 2000,
+                easing = LinearEasing
+            ),
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
+    Surface (
         modifier = Modifier
             .size(300.dp, 300.dp)
-    )
+            .rotate(angles)
+            .background(Color.White,  RoundedCornerShape(35.dp)),
+        shape = RoundedCornerShape(50.dp),
+    ) {
+        Image(
+            painter = painterResource(id = resourceId),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .size(320.dp, 300.dp)
+                .background(Color.Transparent)
+                .rotate(angle)
+        )
+    }
 }

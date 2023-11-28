@@ -73,6 +73,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import android.Manifest.permission.CALL_PHONE
+import android.widget.Toast
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.filled.ArrowBack
@@ -254,6 +255,7 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
                     modifier = Modifier
                         .padding(16.dp)
                         .size(40.dp)
+
                         .clickable {
                             scope.launch { drawerState.open() }
                         },
@@ -392,8 +394,8 @@ fun EmpleoDetails(
 
         val filtrarEmpleos = empleoList.filter { empleo ->
             val buscar = filtrar.lowercase()
-            empleo.provincia.lowercase().contentEquals(buscar) ||
-                    empleo.provincia.lowercase().contains(buscar)
+            empleo.categoria.lowercase().contentEquals(buscar) ||
+                    empleo.categoria.lowercase().contains(buscar)
         }
 
         items(filtrarEmpleos) { empleo ->
@@ -401,14 +403,19 @@ fun EmpleoDetails(
                 LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
             val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
             Surface(
+                color = Color.Gray,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(25.dp)
-                    .shadow(elevation = 15.dp, shape = RoundedCornerShape(10.dp))
+                    .padding(16.dp)
+                    .background(Color.White)
+                    .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp))
+                    .clickable {
+                        onEmpleoClick(empleo)
+                    }
             ) {
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
+                        containerColor = MaterialTheme.colorScheme.background,
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -422,23 +429,23 @@ fun EmpleoDetails(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color.Gray),
+                                .background(Color.LightGray)
+                                .padding(16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
                                 text = "${empleo.nombre}",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = Color.White,
                                 fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Blue,
                                 modifier = Modifier
-                                    .padding(16.dp)
+                                    .weight(1f)
                             )
                             Image(
                                 painter = painterResource(id = R.drawable.click_png_45032),
                                 contentDescription = null,
                                 modifier = Modifier
-                                    .size(60.dp)
-                                    .padding(10.dp)
+                                    .size(30.dp)
                                     .clickable {
                                         onEmpleoClick(empleo)
                                     }
@@ -451,13 +458,15 @@ fun EmpleoDetails(
                         ) {
                             Text(
                                 text = "${empleo.categoria} - ${empleo.provincia}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color.Black
                             )
                             Text(
                                 text = "Publicado el: $fechaFormateada",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color.Black
                             )
                         }
                     }
@@ -502,40 +511,54 @@ fun MinimalDialog(
                     .wrapContentHeight(Alignment.Top)
                     .padding(16.dp)
             ) {
-
-                IconButton(
-                    onClick = { isFavorito = !isFavorito },
+                /*Text(
+                    text = "Detalles del empleo",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.weight(1f) //--Este pone el modal mas largo
+                )*/
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.LightGray),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    if (isFavorito) {
-                        Icon(
-                            imageVector = Icons.Rounded.Star,
-                            contentDescription = "Favorito",
-                            modifier = Modifier.size(48.dp)
-                        )
-                        if (currentFavorite == null) {
-                            empleoViewModel.GuardarEmpleoFavorito(empleo)
-                        }
-                    } else {
-                        Icon(
-                            imageVector = Icons.Filled.StarBorder,
-                            contentDescription = "Favorite",
-                            modifier = Modifier.size(48.dp)
-                        )
-                        if (currentFavorite != null) {
-                            empleoViewModel.Borradordefavorito(currentFavorite)
+                    Text(
+                        text = "Detalles del empleo",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color.DarkGray,
+                        fontSize = 20.sp,
+                        modifier = Modifier
+                            .padding(16.dp)
+                    )
+                    IconButton(
+                        onClick = { isFavorito = !isFavorito }
+                    ) {
+                        if (isFavorito) {
+                            Icon(
+                                imageVector = Icons.Rounded.Star,
+                                contentDescription = "Favorito",
+                                modifier = Modifier.size(48.dp)
+                            )
+                            if (currentFavorite == null) {
+                                empleoViewModel.GuardarEmpleoFavorito(empleo)
+                            }
+                        } else {
+                            Icon(
+                                imageVector = Icons.Filled.StarBorder,
+                                contentDescription = "Favorite",
+                                modifier = Modifier.size(48.dp)
+                            )
+                            if (currentFavorite != null) {
+                                empleoViewModel.Borradordefavorito(currentFavorite)
+                            }
                         }
                     }
                 }
-
-                Text(
-                    text = "Detalles del empleo",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
                 Divider(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(1.dp), color = Color.Gray
+                        .padding(16.dp)
+                        .height(1.dp), color = Color.DarkGray
                 )
 
                 Row(
@@ -626,7 +649,8 @@ fun MinimalDialog(
                 Divider(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(1.dp), color = Color.Gray
+                        .padding(10.dp)
+                        .height(1.dp), color = Color.DarkGray
                 )
 
                 Row(
@@ -671,5 +695,3 @@ fun onContactarClick(context: Context, numero: String) {
         )
     }
 }
-
-

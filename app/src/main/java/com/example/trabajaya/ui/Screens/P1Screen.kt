@@ -3,6 +3,12 @@ package com.example.trabajaya.ui.Screens
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,6 +46,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -86,7 +93,20 @@ fun P1Screen(navController: NavController, empleoViewModel: EmpleoViewModel = hi
 @SuppressLint("StateFlowValueCalledInComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PantallaBA(navController:  NavController, empleoViewModel: EmpleoViewModel = viewModel()) {
+fun PantallaBA(navController: NavController, empleoViewModel: EmpleoViewModel = viewModel()) {
+
+    val transition = rememberInfiniteTransition()
+    val angles by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 5000,
+                easing = LinearEasing
+            ),
+            repeatMode = RepeatMode.Restart
+        )
+    )
 
     val scope = rememberCoroutineScope()
 
@@ -101,7 +121,7 @@ fun PantallaBA(navController:  NavController, empleoViewModel: EmpleoViewModel =
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Gray),
+                .background(Color.Blue),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Icon(
@@ -116,7 +136,7 @@ fun PantallaBA(navController:  NavController, empleoViewModel: EmpleoViewModel =
                 tint = Color.White
             )
             Text(
-                text = "Busqua tu provincia",
+                text = "Busca tu provincia",
                 style = MaterialTheme.typography.labelLarge,
                 color = Color.White,
                 fontSize = 30.sp,
@@ -128,7 +148,8 @@ fun PantallaBA(navController:  NavController, empleoViewModel: EmpleoViewModel =
                 contentDescription = null,
                 modifier = Modifier
                     .size(60.dp)
-                    .padding(10.dp),
+                    .padding(10.dp)
+                    .rotate(angles),
                 colorFilter = ColorFilter.tint(Color.White)
             )
         }
@@ -228,14 +249,18 @@ fun EmpleoDetailsF(
                 LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
             val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
             Surface(
+                color = Color.Gray,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(25.dp)
-                    .shadow(elevation = 15.dp, shape = RoundedCornerShape(10.dp))
+                    .clickable {
+                        onEmpleoClick(empleo)
+                    }
+                    .shadow(elevation = 15.dp, shape = RoundedCornerShape(16.dp))
             ) {
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
+                        containerColor = MaterialTheme.colorScheme.surface,
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -249,13 +274,13 @@ fun EmpleoDetailsF(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color.Gray),
+                                .background(Color.LightGray),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
                                 text = "${empleo.nombre}",
                                 style = MaterialTheme.typography.labelLarge,
-                                color = Color.White,
+                                color = Color.Blue,
                                 fontSize = 20.sp,
                                 modifier = Modifier
                                     .padding(16.dp)
@@ -279,12 +304,12 @@ fun EmpleoDetailsF(
                             Text(
                                 text = "${empleo.categoria} - ${empleo.provincia}",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White
+                                color = Color.DarkGray
                             )
                             Text(
                                 text = "Publicado el: $fechaFormateada",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White
+                                color = Color.DarkGray
                             )
                         }
                     }
