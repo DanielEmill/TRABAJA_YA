@@ -75,8 +75,12 @@ import java.time.format.DateTimeFormatter
 import android.Manifest.permission.CALL_PHONE
 import android.widget.Toast
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
@@ -86,8 +90,11 @@ import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 // Todo: Direño del menu. Este contiene las direcciones establecidas en el ScreenDirectionModule que serviran como entrada a la pantalla/s deseada/s a ingresar.
 
@@ -244,8 +251,7 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
             Spacer(modifier = Modifier.height(20.dp))
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Blue),
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -255,17 +261,16 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
                     modifier = Modifier
                         .padding(16.dp)
                         .size(40.dp)
-
                         .clickable {
                             scope.launch { drawerState.open() }
                         },
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     text = "Empleos recientes",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Color.White,
-                    fontSize = 30.sp,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 24.sp,
                     modifier = Modifier
                         .padding(16.dp)
                         .wrapContentWidth(Alignment.CenterHorizontally)
@@ -354,121 +359,126 @@ fun PantallaInicial(navController: NavController, empleoViewModel: EmpleoViewMod
         }
     }
 }
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EmpleoDetails(
     empleoList: List<EmpleoDto>,
     onEmpleoClick: (EmpleoDto) -> Unit,
 ) {
-    var filtrar by remember { mutableStateOf("") }
-    val interactionSource = remember { MutableInteractionSource() }
+    var filtroCategoria by remember { mutableStateOf("") }
+    var isFilterVisible by remember { mutableStateOf(false) }
 
     LazyColumn {
         item {
-            // Todo: Casilla de busqueda de empleos por provincia.
+            if (isFilterVisible) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    OutlinedTextField(
+                        value = filtroCategoria,
+                        onValueChange = { filtroCategoria = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(30.dp),
+                        placeholder = {
+                            Text("Buscar por categoría")
+                        },
+                        singleLine = true,
+                        interactionSource = remember { MutableInteractionSource() }
+                    )
+                }
+            }
+
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .clickable {
+                        isFilterVisible = !isFilterVisible
+                    },
                 horizontalArrangement = Arrangement.Center
             ) {
-                OutlinedTextField(
-                    value = filtrar,
-                    onValueChange = { filtrar = it },
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search Icon",
                     modifier = Modifier
-                        .width(300.dp)
                         .padding(16.dp)
-                        .onFocusChanged { focusState ->
-                            if (focusState.isFocused) {
-                                filtrar = ""
-                            }
-                        },
-                    shape = RoundedCornerShape(30.dp),
-                    interactionSource = interactionSource
+                        .size(40.dp)
                 )
             }
         }
 
-        // Todo: Creacion de un filtro para la busqueda de empleos por provincia.
-        // Todo: La variable llamada filteredEmployments es la que se encarga de filtrar los empleos.
-
-        val filtrarEmpleos = empleoList.filter { empleo ->
-            val buscar = filtrar.lowercase()
-            empleo.categoria.lowercase().contentEquals(buscar) ||
-                    empleo.categoria.lowercase().contains(buscar)
-        }
-
-        items(filtrarEmpleos) { empleo ->
+        items(empleoList.filter { empleo ->
+            empleo.categoria.lowercase().contains(filtroCategoria.lowercase())
+        }) { empleo ->
             val fechaParseada =
                 LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
             val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
-            Surface(
-                color = Color.Gray,
+
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .background(Color.White)
-                    .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp))
                     .clickable {
                         onEmpleoClick(empleo)
                     }
             ) {
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                    ),
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp),
-                    shape = RoundedCornerShape(16.dp),
                 ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.primary)
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "${empleo.nombre}",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier
+                                .weight(1f)
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.click_png_45032),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(30.dp)
+                                .clickable {
+                                    onEmpleoClick(empleo)
+                                }
+                        )
+                    }
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color.LightGray)
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = "${empleo.nombre}",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Blue,
-                                modifier = Modifier
-                                    .weight(1f)
-                            )
-                            Image(
-                                painter = painterResource(id = R.drawable.click_png_45032),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(30.dp)
-                                    .clickable {
-                                        onEmpleoClick(empleo)
-                                    }
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                        ) {
-                            Text(
-                                text = "${empleo.categoria} - ${empleo.provincia}",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color.Black
-                            )
-                            Text(
-                                text = "Publicado el: $fechaFormateada",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color.Black
-                            )
-                        }
+                        Text(
+                            text = "${empleo.categoria} - ${empleo.provincia}",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            "${empleo.descripcion}",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "Publicado el: $fechaFormateada",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             }
@@ -511,11 +521,6 @@ fun MinimalDialog(
                     .wrapContentHeight(Alignment.Top)
                     .padding(16.dp)
             ) {
-                /*Text(
-                    text = "Detalles del empleo",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.weight(1f) //--Este pone el modal mas largo
-                )*/
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -554,113 +559,63 @@ fun MinimalDialog(
                         }
                     }
                 }
+
                 Divider(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
-                        .height(1.dp), color = Color.DarkGray
+                        .height(1.dp),
+                    color = Color.DarkGray
                 )
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        "Nombre:",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                    Text("${empleo.nombre}")
-                }
+                val detalles = listOf(
+                    "Nombre" to empleo.nombre,
+                    "Categoria" to empleo.categoria,
+                    "Descripción" to empleo.descripcion,
+                    "Provincia" to empleo.provincia,
+                    "Direccion" to empleo.direccion,
+                    "Correo" to empleo.correo,
+                    "Telefono" to empleo.numero,
+                    "Publicado" to fechaFormateada
+                )
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        "Categoria:",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                    Text("${empleo.categoria}")
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        "Descripción:",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                    Text("${empleo.descripcion}")
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        "Provincia:",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                    Text("${empleo.provincia}")
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        "Direccion:",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                    Text("${empleo.direccion}")
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        "Correo:",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                    Text("${empleo.correo}")
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        "Telefono:",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                    Text("${empleo.numero}")
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        "Publicado:",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                    Text("$fechaFormateada")
+                detalles.forEach { (titulo, contenido) ->
+                    DetalleRow(titulo, contenido)
                 }
 
                 Divider(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp)
-                        .height(1.dp), color = Color.DarkGray
+                        .height(1.dp),
+                    color = Color.DarkGray
                 )
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Button(onClick = { onEnviarCVClick(context, empleo.correo) }) {
+                    Button(
+                        onClick = { onEnviarCVClick(context, empleo.correo) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp),
+                        contentPadding = PaddingValues(8.dp)
+                    ) {
+                        Icon(Icons.Default.MailOutline, contentDescription = "Enviar CV")
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text("Enviar CV")
                     }
-                    Button(onClick = { onContactarClick(context, empleo.numero) }) {
+
+                    Button(
+                        onClick = { onContactarClick(context, empleo.numero) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp),
+                        contentPadding = PaddingValues(8.dp)
+                    ) {
+                        Icon(Icons.Default.Phone, contentDescription = "Contactar")
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text("Contactar")
                     }
                 }
@@ -669,6 +624,22 @@ fun MinimalDialog(
     }
 }
 
+@Composable
+private fun DetalleRow(titulo: String, contenido: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .wrapContentHeight(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = titulo,
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+        )
+        Text(text = contenido, style = MaterialTheme.typography.bodyMedium)
+    }
+}
 fun onEnviarCVClick(context: Context, correo: String) {
     val subject = "CV - BY TRABAJAYA"
     val intent = Intent(Intent.ACTION_SENDTO).apply {
