@@ -80,6 +80,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -278,15 +279,15 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
                         .padding(16.dp)
                         .wrapContentWidth(Alignment.CenterHorizontally)
                 )
-                /*
                 Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search Icon"
-                    //DEBEMOS HACER Q ESTO FUNCIONE
+                    imageVector = Icons.Filled.Receipt,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(40.dp),
+                    tint = MaterialTheme.colorScheme.background
                 )
-                 */
             }
-
             Spacer(modifier = Modifier.height(16.dp))
             Divider(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color.Gray))
             PantallaInicial(navController, empleoViewModel)

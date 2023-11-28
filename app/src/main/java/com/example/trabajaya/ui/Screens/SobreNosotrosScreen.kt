@@ -85,7 +85,7 @@ fun ConfigScreen(navController: NavController) {
                 .padding(bottom = 8.dp)
         )
         Image(
-            painter = painterResource(id = R.drawable.logonewmodern),
+            painter = painterResource(id = R.drawable.logo),
             contentDescription = null,
             modifier = Modifier.size(600.dp)
         )

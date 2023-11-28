@@ -52,8 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.core.content.FileProvider
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.trabajaya.ui.viewModel.EmpleoViewModel
 import com.example.trabajaya.utils.directionModule.ScreenDirectionModule
 import kotlinx.coroutines.launch
 import java.io.File

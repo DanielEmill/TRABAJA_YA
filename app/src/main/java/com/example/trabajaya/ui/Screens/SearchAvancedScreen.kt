@@ -52,7 +52,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -63,7 +62,6 @@ import com.example.trabajaya.R
 import com.example.trabajaya.data.remote.dto.EmpleoDto
 import com.example.trabajaya.ui.viewModel.EmpleoViewModel
 import com.example.trabajaya.utils.directionModule.ScreenDirectionModule
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
