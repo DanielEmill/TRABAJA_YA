@@ -81,6 +81,12 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.runtime.collectAsState
+import androidx.hilt.navigation.compose.hiltViewModel
 
 // Todo: Direño del menu. Este contiene las direcciones establecidas en el ScreenDirectionModule que serviran como entrada a la pantalla/s deseada/s a ingresar.
 
@@ -130,6 +136,7 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
             )
             Spacer(Modifier.height(15.dp))
             item_1.forEach { item ->
+
                 NavigationDrawerItem(
                     icon = {
                         if (item.icon is Int) {
@@ -459,19 +466,27 @@ fun EmpleoDetails(
         }
     }
 }
-
+@SuppressLint("UnrememberedMutableState")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MinimalDialog(
     onDismissRequest: () -> Unit,
     empleo: EmpleoDto,
     onEnviarCVClick: (Context, String) -> Unit,
-    onContactarClick: (Context, String) -> Unit
+    onContactarClick: (Context, String) -> Unit,
+    empleoViewModel: EmpleoViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val fechaParseada =
         LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
     val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
+
+    val favorites by empleoViewModel.favorites.collectAsState()
+    var isFavorito by mutableStateOf(false)
+    val currentFavorite = favorites.find { it.empleoId == empleo.empleoId }
+    if (currentFavorite != null) {
+        isFavorito = true
+    }
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -487,6 +502,31 @@ fun MinimalDialog(
                     .wrapContentHeight(Alignment.Top)
                     .padding(16.dp)
             ) {
+
+                IconButton(
+                    onClick = { isFavorito = !isFavorito },
+                ) {
+                    if (isFavorito) {
+                        Icon(
+                            imageVector = Icons.Rounded.Star,
+                            contentDescription = "Favorito",
+                            modifier = Modifier.size(48.dp)
+                        )
+                        if (currentFavorite == null) {
+                            empleoViewModel.GuardarEmpleoFavorito(empleo)
+                        }
+                    } else {
+                        Icon(
+                            imageVector = Icons.Filled.StarBorder,
+                            contentDescription = "Favorite",
+                            modifier = Modifier.size(48.dp)
+                        )
+                        if (currentFavorite != null) {
+                            empleoViewModel.Borradordefavorito(currentFavorite)
+                        }
+                    }
+                }
+
                 Text(
                     text = "Detalles del empleo",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
