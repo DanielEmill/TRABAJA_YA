@@ -285,6 +285,7 @@ fun DrawerMenu(navController: NavController, empleoViewModel: EmpleoViewModel = 
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+            Divider(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color.Gray))
             PantallaInicial(navController, empleoViewModel)
         }
     })
