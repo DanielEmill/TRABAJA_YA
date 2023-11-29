@@ -74,7 +74,6 @@ fun P3Screen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.padding(20.dp))
             P3ScreenBody(navController)
         }
     }
@@ -116,7 +115,7 @@ fun P3ScreenBody(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF673AB7)),
+                .background(MaterialTheme.colorScheme.primary),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Icon(
@@ -196,7 +195,7 @@ fun UploadButton(onClick: () -> Unit) {
         IconButton(
             onClick = onClick,
             modifier = Modifier
-                .background(Color(0xFF673AB7))
+                .background(MaterialTheme.colorScheme.primary)
                 .padding(16.dp)
                 .size(56.dp)
         ) {
@@ -216,14 +215,13 @@ fun SendButton(onClick: () -> Unit) {
     IconButton(
         onClick = onClick,
         modifier = Modifier
-            .background(Color(0xFF673AB7))
+            .background(MaterialTheme.colorScheme.primary)
             .padding(16.dp)
-            .size(56.dp)
     ) {
         Icon(
             imageVector = Icons.Default.Send,
             contentDescription = "Enviar",
-            tint = Color(0xFF673AB7)
+            tint = Color(0xFFFFFFFF)
         )
     }
 }

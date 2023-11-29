@@ -41,7 +41,7 @@ fun ConfigScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Top
     ) {
         Spacer(modifier = Modifier.height(10.dp))
