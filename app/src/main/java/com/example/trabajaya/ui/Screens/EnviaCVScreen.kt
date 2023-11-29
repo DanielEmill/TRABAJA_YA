@@ -243,9 +243,7 @@ private fun sendEmailWithAttachment(context: Context, uri: Uri) {
     val contentUri = FileProvider.getUriForFile(
         context, context.packageName + ".fileprovider", file
     )
-
     emailIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
     emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
     context.startActivity(Intent.createChooser(emailIntent, "Enviar CV"))
 }
