@@ -130,7 +130,7 @@ fun P3ScreenBody(
                 tint = Color.White
             )
             Text(
-                text = "Enviar mi CV",
+                text = "Envia tu CV",
                 style = MaterialTheme.typography.labelLarge,
                 color = Color.White,
                 fontSize = 30.sp,
