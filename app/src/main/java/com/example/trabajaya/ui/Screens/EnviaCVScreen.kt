@@ -116,7 +116,7 @@ fun P3ScreenBody(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF8BC34A)),
+                .background(Color(0xFF673AB7)),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Icon(
@@ -196,7 +196,7 @@ fun UploadButton(onClick: () -> Unit) {
         IconButton(
             onClick = onClick,
             modifier = Modifier
-                .background(Color(0xFF8BC34A))
+                .background(Color(0xFF673AB7))
                 .padding(16.dp)
                 .size(56.dp)
         ) {
@@ -216,14 +216,14 @@ fun SendButton(onClick: () -> Unit) {
     IconButton(
         onClick = onClick,
         modifier = Modifier
-            .background(Color(0xFF8BC34A))
+            .background(Color(0xFF673AB7))
             .padding(16.dp)
             .size(56.dp)
     ) {
         Icon(
             imageVector = Icons.Default.Send,
             contentDescription = "Enviar",
-            tint = Color(0xFF8BC34A)
+            tint = Color(0xFF673AB7)
         )
     }
 }

@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -81,15 +82,7 @@ fun P2Screen(navController: NavController, empleoViewModel: EmpleoViewModel = hi
         modifier = Modifier.size(200.dp, 200.dp), horizontalAlignment = Alignment.Start
     ) {
         Spacer(modifier = Modifier.height(10.dp))
-        Icon(imageVector = Icons.Filled.ArrowBack,
-            contentDescription = null,
-            modifier = Modifier
-                .size(50.dp, 50.dp)
-                .padding(4.dp)
-                .clickable {
-                    scope.launch { navController.navigate(ScreenDirectionModule.PMain.route) }
-                })
-        PantallaInicial(empleoViewModel)
+        PantallaInicial(navController, empleoViewModel)
     }
 }
 
@@ -97,29 +90,54 @@ fun P2Screen(navController: NavController, empleoViewModel: EmpleoViewModel = hi
 @SuppressLint("StateFlowValueCalledInComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PantallaInicial(empleoViewModel: EmpleoViewModel = viewModel()) {
+fun PantallaInicial(navController: NavController, empleoViewModel: EmpleoViewModel = viewModel()) {
 
     var isModalVisible by remember { mutableStateOf(false) }
     var selectedEmpleo by remember { mutableStateOf<EmpleoLocal?>(null) }
-
+    val favorites by empleoViewModel.favorites.collectAsState()
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         Spacer(modifier = Modifier.height(20.dp))
-
-
-        Text(
-            text = "Empleos favorito:",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
+        Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(7.dp)
-                .wrapContentWidth(Alignment.CenterHorizontally)
-        )
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(40.dp)
+                    .clickable {
+                        scope.launch { navController.navigate(ScreenDirectionModule.PMain.route ) }
+                    },
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "Mis Favoritos",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 24.sp,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            )
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(40.dp),
+                tint = MaterialTheme.colorScheme.background
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
-        val favorites by empleoViewModel.favorites.collectAsState()
+        Divider(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color.Gray))
 
         Column {
             EmpleoDetails(empleoList = favorites) {
@@ -139,11 +157,8 @@ fun PantallaInicial(empleoViewModel: EmpleoViewModel = viewModel()) {
                         onContactarClick(context, numero)
                     })
             }
-
-
         }
     }
-
 }
 
 // EmpleoDetails
@@ -156,81 +171,70 @@ fun EmpleoDetails(empleoList: List<EmpleoLocal>, onEmpleoClick: (EmpleoLocal) ->
                 LocalDateTime.parse(empleo.fechaDePublicacion, DateTimeFormatter.ISO_DATE_TIME)
             val fechaFormateada = fechaParseada.format(DateTimeFormatter.ISO_DATE)
 
-            Surface(
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .background(Color.White)
                     .clickable {
                         onEmpleoClick(empleo)
                     }
-                    .shadow(elevation = 8.dp, shape = RoundedCornerShape(10.dp))
             ) {
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                    ),
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp),
-                    shape = RoundedCornerShape(16.dp),
                 ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.primary)
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "${empleo.nombre}",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier
+                                .weight(1f)
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.click_png_45032),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(30.dp)
+                                .clickable {
+                                    onEmpleoClick(empleo)
+                                }
+                        )
+                    }
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color.LightGray)
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = "${empleo.nombre}",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Blue,
-                                modifier = Modifier
-                                    .weight(1f)
-                            )
-                            Image(
-                                painter = painterResource(id = R.drawable.click_png_45032),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(60.dp)
-                                    .clickable {
-                                        onEmpleoClick(empleo)
-                                    }
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                        ) {
-                            Text(
-                                text = "${empleo.categoria} - ${empleo.provincia}",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color.Black
-                            )
-                            Text(
-                                text = "Publicado el: $fechaFormateada",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color.Black
-                            )
-                        }
+                        Text(
+                            text = "${empleo.categoria} - ${empleo.provincia}",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            "${empleo.descripcion}",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "Publicado el: $fechaFormateada",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             }
-
-            Divider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp), color = Color.Gray
-            )
         }
     }
 }
@@ -453,6 +457,3 @@ fun onContactarClick(context: Context, numero: String) {
         )
     }
 }
-
-
-
