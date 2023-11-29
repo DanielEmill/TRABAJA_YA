@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -39,19 +41,24 @@ fun ConfigScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        horizontalAlignment = Alignment.Start
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
     ) {
         Spacer(modifier = Modifier.height(10.dp))
-        Icon(
-            imageVector = Icons.Filled.ArrowBack,
-            contentDescription = null,
+
+        IconButton(
+            onClick = { scope.launch { navController.navigate(ScreenDirectionModule.PMain.route) } },
             modifier = Modifier
-                .size(50.dp, 50.dp)
+                .size(50.dp)
                 .padding(4.dp)
-                .clickable {
-                    scope.launch { navController.navigate(ScreenDirectionModule.PMain.route) }
-                }
-        )
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = null,
+                tint = Color.Black
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
@@ -60,15 +67,14 @@ fun ConfigScreen(navController: NavController) {
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(7.dp)
                 .background(Color.Gray.copy(alpha = 0.1f))
-                .wrapContentWidth(Alignment.CenterHorizontally)
                 .padding(16.dp)
         )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Proyecto realizado por Emill Daniel Garcia Castellanos y Wandy Fco.",
+            text = "Proyecto realizado por Emill Daniel Garcia Castellanos y Wandy Fco. Paulino Victorino.",
             fontSize = 16.sp,
             modifier = Modifier
                 .background(Color.Gray.copy(alpha = 0.1f))
@@ -84,10 +90,13 @@ fun ConfigScreen(navController: NavController) {
                 .padding(16.dp)
                 .padding(bottom = 8.dp)
         )
+
         Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = null,
-            modifier = Modifier.size(600.dp)
+            modifier = Modifier
+                .size(300.dp)
+                .padding(16.dp)
         )
     }
 }
